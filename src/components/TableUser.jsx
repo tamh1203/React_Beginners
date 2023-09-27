@@ -2,32 +2,82 @@ import React, { useEffect, useState } from 'react'
 import Table from 'react-bootstrap/Table';
 import { fetchAllUser } from '../services/UserService';
 import ReactPaginate from 'react-paginate';
+import ModalAddUser from './ModalAddUser';
+import ModalEditUser from './ModalEditUser';
+import ModalDeleteUser from './ModalDeleteUser';
+import _ from "lodash"
+
+
 export default function TableUser(props) {
   const [listUser, setListUser] = useState([])
   const [totalUser,setTotalUser]= useState(0);
   const [totalPage, setTotalPage] = useState(0);
+  const [showAddUser, setIsShowAddUser] = useState(false);
+  const [showEditUser, setIsShowEditUser] = useState (false)
+  const [dataUser,setDataUser] = useState({})
+  const [isShowDelete, setIsShowDelelte] = useState(false)
+  const [dataUserDelete, setDataUserDelete] = useState({})
 
+  const handleClose = () => {
+    setIsShowAddUser(false) // close modal
+    setIsShowEditUser(false)
+    setIsShowDelelte(false)
+  }
   useEffect(()=>{
     // call api
-    getUser(1)
+    getUser()
   },[])
-
   const getUser = async (page)=>{
     const res = await fetchAllUser(page)
     if(res && res.data)
     {
-      console.log("response",res)
       setListUser(res.data)
       setTotalUser(res.total)
       setTotalPage(res.total_pages)
     }
   } 
-  console.log("list", listUser)
+
   const handlePageClick = (event)=>{
     // next page
-    getUser(+event.selected + 1)
+    getUser(+event.selected + 1) 
   }
+
+  const handleUpdateUser = (user)=>{
+    setListUser([user,...listUser]) // clone listUser và push user mới vào mảng .
+    console.log("user",user);
+  }
+
+  const handleEditUser = (user)=>{
+    setDataUser(user) // set name vào modal edit
+    let cloneListUser = [...listUser] // clone list User bằng lodash _.cloneDeep(listUser)
+    let index = cloneListUser.findIndex(item => item.id === user.id) // tìm index cần edit
+    cloneListUser[index].first_name = user.first_name 
+    console.log(listUser, cloneListUser)
+  }
+
+  const hanldeDelete = (user) =>{
+    setIsShowDelelte(true)
+    setDataUserDelete(user)
+   
+  }
+   
+  const handleDeleteUserFormModal = (user)=>{
+    let cloneListUser = _.cloneDeep(listUser)
+    cloneListUser = cloneListUser.filter(item => item.id !== user.id)
+    setListUser(cloneListUser)
+  }
+ 
+
   return (
+    <>
+    <div className='my-2 d-flex justify-content-between'>
+          List User :
+          <button className='btn btn-primary' onClick={() => {
+            setIsShowAddUser(true)
+          }} >
+            Add New User
+          </button>
+        </div>
     <div>
     <Table striped bordered hover>
       <thead>
@@ -36,6 +86,7 @@ export default function TableUser(props) {
           <th>Email</th>
           <th>First Name</th>
           <th>Last Name</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -47,6 +98,21 @@ export default function TableUser(props) {
               <td>{item.email}</td>
               <td>{item.first_name}</td>
               <td>{item.last_name}</td>
+              <td>
+                <button
+                 className='btn btn-warning ms-3'
+                 onClick={()=>{
+                  handleEditUser(item)
+                  setIsShowEditUser(true)
+                 }}
+                 >Edit</button>
+                <button
+                 className='btn btn-danger ms-3'
+                 onClick={()=>{
+                  hanldeDelete(item)
+                 }}
+                 >Delete</button>
+              </td>
             </tr>
             )
           })
@@ -54,6 +120,7 @@ export default function TableUser(props) {
         
       </tbody>
     </Table>
+    <div className='d-flex justify-content-center'>
     <ReactPaginate
         breakLabel="..."
         nextLabel="next >"
@@ -73,5 +140,11 @@ export default function TableUser(props) {
         activeClassName='active'
       />
     </div>
+    </div>
+    <ModalAddUser showAddUser={showAddUser} handleClose={handleClose} handleUpdateUser = {handleUpdateUser} />
+    <ModalEditUser showEditUser ={showEditUser} handleClose={handleClose} dataUser={dataUser}
+    handleEditUser ={handleEditUser} />
+    <ModalDeleteUser isShowDelete = {isShowDelete} handleClose={handleClose}  dataUserDelete={dataUserDelete} handleDeleteUserFormModal = {handleDeleteUserFormModal}/>
+    </>
   )
 }
