@@ -13,6 +13,7 @@ export default function ModalDeleteUser(props) {
       console.log("delete success !")
       handleClose()
       handleDeleteUserFormModal(dataUserDelete)
+      console.log(dataUserDelete)
     }
     else{
       console.log("delete erro");
