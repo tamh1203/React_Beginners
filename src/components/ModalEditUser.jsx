@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useState } from 'react';
 import {putUpdateUser} from "../services/UserService"
+import {toast } from 'react-toastify';
 
 export default function ModalEditUser(props) {
   const { showEditUser,handleClose,dataUser,handleEditUser} = props
@@ -16,6 +17,7 @@ export default function ModalEditUser(props) {
     first_name : name,
     id : dataUser.id
    })
+   toast("Edit user success ! ")
    handleClose()
    console.log("res",res);
   }

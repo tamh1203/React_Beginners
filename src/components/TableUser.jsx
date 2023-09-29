@@ -6,6 +6,10 @@ import ModalAddUser from './ModalAddUser';
 import ModalEditUser from './ModalEditUser';
 import ModalDeleteUser from './ModalDeleteUser';
 import _, { debounce } from "lodash"
+import { CSVLink } from "react-csv";
+import  "./TableCss.scss"
+import Papa from 'papaparse';
+import {toast } from 'react-toastify';
 
 export default function TableUser(props) {
   const [listUser, setListUser] = useState([])
@@ -22,6 +26,7 @@ export default function TableUser(props) {
   const [sortBy,setSortBy] = useState("asc")
   const [sortField, setSortField] = useState("id")
 
+  const [exportData, setExportData] = useState([])
 
   const handleClose = () => {
     setIsShowAddUser(false) // close modal
@@ -94,15 +99,94 @@ export default function TableUser(props) {
       getUser(1)
     }
   },500)
+  
+  const handleExportData = (event,done) =>{   
+    let result = []
+      if(listUser && listUser.length > 0 ){
+        result.push(["ID", "Email","First Name", "Last Name"])
+        listUser.map((item,index)=>{
+          let arr = []
+          arr[0] = item.id
+          arr[1] = item.email
+          arr[2] = item.first_name
+          arr[3] = item.last_name
+          result.push(arr)
+        })
+      }
+      setExportData(result)
+      done()
+  }
+
+     const handleImportCSV = (e)=>{
+        if(e.target && e.target.files && e.target.files[0]){
+          let file = e.target.files[0]
+          if(file.type !== "text/csv"){
+            toast("Wrong format CSV file...!")
+            return 
+          }
+            // Parse local CSV file
+        Papa.parse(file, {
+          // header: true,//cách 1 tạo phần head cho tưởng object 
+          complete: function(results) {
+            let rawCSV = results.data;
+            if(rawCSV.length > 0 ){
+              if(rawCSV[0] && rawCSV[0].length === 3){
+                if(rawCSV[0][0] !== "email" || rawCSV[0][1] !== "first_name" || rawCSV[0][2] !== "last_name"){
+                  toast("Wrong format heading CSV file !")
+                }
+                else{
+                  let result = []
+                  rawCSV.map((item, index) => {
+                      if(index > 0 && item.length === 3) {
+                        let job = {}
+                        job.email = item[0]
+                        job.first_name = item[1]
+                        job.last_name = item[2]
+                        result.push(job)
+                      }
+                  })
+                  console.log("check result", result)
+                }
+              }else{
+                toast("Wrong fomat CSV file !")
+              }
+            }else{
+              toast("Wrong fomat CSV file !")
+            }
+            console.log("Finished:", results.data);
+          }
+        });
+        }
+     }
   return (
     <>
     <div className='my-2 d-flex justify-content-between'>
-          List User :
-          <button className='btn btn-primary' onClick={() => {
+        <span className='text-primary'>List User :</span>
+          <div className='group-btns'>
+            <label htmlFor="test" className='btn btn-warning'>
+            <i className="fa-solid fa-file-import"></i> Import
+              </label>
+           <input 
+           type='file' 
+           id ='test' hidden
+           onChange={(e)=>{handleImportCSV(e)}}
+
+           /> 
+          <CSVLink 
+             className='btn btn-primary'
+             data={exportData}
+             filename={'my_file.csv'}
+             asyncOnClick={true}
+             onClick={(event,done)=>{handleExportData(event,done)}}
+           >
+           <i className="fa-solid fa-file-arrow-down"></i> Export
+             </CSVLink>
+          <button className='btn btn-success' onClick={() => {
             setIsShowAddUser(true)
           }} >
-            Add New User
+          <i className="fa-solid fa-circle-plus"></i>  Add New
           </button>
+          </div>
         </div>
         <div className='my-3 col-4'>
           <input 
@@ -132,9 +216,7 @@ export default function TableUser(props) {
                 onClick={()=>handleSort("desc","id")}
                ></i>
               </span>
-            </div>
-       
-    
+            </div>   
             </th>
           <th>Email</th>
           <th>
@@ -151,7 +233,6 @@ export default function TableUser(props) {
                ></i>
               </span>
             </div>
-              
           </th>
           <th>Last Name</th>
           <th>Actions</th>
@@ -168,7 +249,7 @@ export default function TableUser(props) {
               <td>{item.last_name}</td>
               <td>
                 <button
-                 className='btn btn-warning ms-3'
+                 className='btn btn-info ms-3'
                  onClick={()=>{
                   handleEditUser(item)
                   setIsShowEditUser(true)
@@ -214,5 +295,6 @@ export default function TableUser(props) {
     handleEditUser ={handleEditUser} />
     <ModalDeleteUser isShowDelete = {isShowDelete} handleClose={handleClose}  dataUserDelete={dataUserDelete} handleDeleteUserFormModal = {handleDeleteUserFormModal}/>
     </>
+    
   )
 }

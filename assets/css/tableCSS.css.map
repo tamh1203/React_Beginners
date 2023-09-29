@@ -1,1 +1,1 @@
-{"version":3,"sources":["../../src/tableCSS.scss","tableCSS.css"],"names":[],"mappings":"AACA;EACE,eAAA;ACAF","file":"tableCSS.css"}
+{"version":3,"sources":["../../src/components/TableCss.scss","TableCss.css"],"names":[],"mappings":"AAEC;EACC,aAAA;EACA,QAAA;ACDF","file":"TableCss.css"}

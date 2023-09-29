@@ -1,3 +1,4 @@
-span {
-  cursor: pointer;
-}/*# sourceMappingURL=tableCSS.css.map */
+.group-btns {
+  display: flex;
+  gap: 5px;
+}/*# sourceMappingURL=TableCss.css.map */

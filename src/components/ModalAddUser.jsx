@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { postCreatUser } from '../services/UserService';
+import {toast } from 'react-toastify';
 
 export default function ModalAddUser(props) {
   const {showAddUser, handleClose, handleUpdateUser} = props
@@ -16,7 +17,7 @@ export default function ModalAddUser(props) {
       handleClose()
       handleUpdateUser({first_name : name, id: res.id})
       if(res && res.id ){
-        console.log("Submit success")
+        toast("Add user success ! ")
       }
       else{
         console.log("submit erro")
