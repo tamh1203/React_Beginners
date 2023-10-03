@@ -3,8 +3,9 @@ import './App.scss';
 import Header from './components/Header';
 import TableUser from './components/TableUser';
 import Container from 'react-bootstrap/Container';
-import { ToastContainer, toast } from 'react-toastify';
-
+import { ToastContainer } from 'react-toastify';
+import { Routes, Route } from "react-router-dom"
+import Home from './components/Home';
 function App() {
 
   return (
@@ -12,7 +13,10 @@ function App() {
       <div className='app-container'>
         <Header />
         <Container>
-          <TableUser />
+          <Routes>
+            <Route path='/' element={<Home />} />
+            <Route path='/user' element={<TableUser />} />
+          </Routes>
         </Container>
       </div>
       <ToastContainer
@@ -27,6 +31,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
+
     </>
   );
 }

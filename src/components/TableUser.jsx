@@ -146,6 +146,7 @@ export default function TableUser(props) {
                       }
                   })
                   console.log("check result", result)
+                  setListUser(result)
                 }
               }else{
                 toast("Wrong fomat CSV file !")
